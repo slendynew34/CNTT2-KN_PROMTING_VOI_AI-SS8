@@ -1,0 +1,57 @@
+# Khắc phục lỗi khai báo biến số trong prompt mẫu
+## Bước 1: Phân tích lỗi
+
+Trong prompt mẫu ban đầu:
+
+> _Hãy viết một bài chia sẻ về Quản trị Prompt & System Instructions bằng ngôn ngữ `[language]`. Dành cho đối tượng `{audience}`._
+
+Việc khai báo lộn xộn giữa `[language]` (ngoặc vuông, chữ thường) và `{audience}` (ngoặc nhọn đơn, chữ thường) gây ra các khó khăn lớn cho tự động hóa và tái sử dụng:
+
+1.  **Khó nhận diện và thay thế biến tự động (Find & Replace / Parser / Script):** Các công cụ tự động hóa, script xử lý chuỗi hoặc regex thường kỳ vọng một quy ước ký hiệu thống nhất (ví dụ toàn bộ dùng `[TÊN_BIẾN]` hoặc `{{TÊN_BIẾN}}`). Khi trộn lẫn `[...]` và `{...}`, quy tắc tìm kiếm/thay thế dễ bị lệch hoặc bỏ sót biến.
+    
+2.  **Dễ nhầm lẫn giữa biến số và dữ liệu/cấu trúc thông thường:** Ký hiệu ngoặc đơn `{...}` hoặc cách viết chữ thường lẫn lộn dễ khiến người dùng hoặc hệ thống xử lý văn bản nhầm lẫn đâu là placeholder cần điền, dẫn đến điền thiếu hoặc để sót biến thô trong đầu ra.
+    
+3.  **Thiếu chuẩn hóa đặt tên (Naming Convention):** Dùng chữ thường (`language`,  `audience`) thay vì chữ hoa có gạch dưới (`[NGÔN_NGỮ]`,  `[ĐỐI_TƯỢNG]`) khiến biến kém nổi bật khi đọc rà soát nhanh, dễ gõ sai chính tả hoặc đặt tên thiếu đồng nhất giữa các mẫu prompt trong thư viện.
+    
+4.  **Giảm tính nhất quán và khả năng mở rộng của Prompt Library:** Khi mỗi mẫu dùng một kiểu ngoặc hoặc ngôn ngữ đặt tên khác nhau, việc chuẩn hóa theo quy trình SOP, chia sẻ cho đồng đội hoặc kết nối vào luồng tự động hóa hàng loạt sẽ phát sinh lỗi và tốn thời gian sửa lại.
+    
+
+## Bước 2: Đồng bộ biến số
+
+Đưa toàn bộ biến số về dạng thống nhất dùng ngoặc vuông `[...]` và viết hoa rõ ràng `[NGÔN_NGỮ]`,  `[ĐỐI_TƯỢNG]`:
+
+### Prompt mẫu đã đồng bộ biến số
+```
+Hãy viết một bài chia sẻ về Quản trị Prompt & System Instructions bằng ngôn ngữ [NGÔN_NGỮ]. Dành cho đối tượng [ĐỐI_TƯỢNG].
+```
+## Chạy thử sau khi điền dữ liệu thực tế
+
+### 1. Giá trị điền vào biến
+
+-   `[NGÔN_NGỮ]`:  `Tiếng Việt`
+    
+-   `[ĐỐI_TƯỢNG]`:  `Sinh viên năm nhất ngành Công nghệ thông tin`
+    
+
+### 2. Prompt hoàn chỉnh sau khi thay biến
+
+> _Hãy viết một bài chia sẻ về Quản trị Prompt & System Instructions bằng ngôn ngữ Tiếng Việt. Dành cho đối tượng Sinh viên năm nhất ngành Công nghệ thông tin._
+
+### 3. Kết quả chạy thử của AI
+
+> **Quản trị Prompt & System Instructions: Nền tảng làm việc hiệu quả và an toàn với AI**
+> 
+> Khi mới làm quen với AI, nhiều bạn thường gõ prompt theo cảm tính: gặp việc gì viết câu đó, lúc rõ ràng lúc mơ hồ. Cách làm này ổn cho một vài câu hỏi lẻ, nhưng khi làm việc thường xuyên hoặc xây dựng công cụ cho nhiều người, prompt rời rạc sẽ khiến kết quả thiếu ổn định và khó kiểm soát. **Quản trị Prompt** và **System Instructions** ra đời để giải quyết chính bài toán đó.
+> 
+> **1. System Instructions là gì?** Bạn có thể hình dung **System Instructions** (hoặc Custom Instructions) giống như _bản quy định nền tảng_ đặt trước cuộc trò chuyện. Nó xác định AI đóng vai trò gì, cần tuân thủ nguyên tắc nào, trả lời theo văn phong ra sao và giới hạn ở đâu. Nhờ có khung chỉ thị này, AI giữ được tính nhất quán xuyên suốt thay vì "quên bài" hoặc đổi giọng văn liên tục.
+> 
+> **2. Vì sao cần quản trị prompt bài bản?**
+> 
+> -   **Tính nhất quán:** Cùng một loại tác vụ (tóm tắt tài liệu, giải thích thuật toán, kiểm tra code) sẽ cho ra cấu trúc và chất lượng đồng đều hơn.
+>     
+> -   **Tái sử dụng nhanh:** Khi tách phần khung mẫu với biến số động (như `[NGÔN_NGỮ]`, `[ĐỐI_TƯỢNG]`), bạn chỉ cần thay dữ liệu đầu vào thay vì viết lại từ đầu.
+>     
+> -   **An toàn thông tin:** Nếu không có rào chắn rõ ràng trong System Instructions và xử lý dữ liệu đầu vào cẩn thận, hệ thống AI có thể bị chèn chỉ thị trái phép (_Prompt Injection_) làm lệch hướng trả lời hoặc rò rỉ thông tin cấu hình.
+>     
+> 
+> **3. Bắt đầu áp dụng thế nào cho dễ?** Hãy bắt đầu từ những việc quen thuộc hằng ngày: viết sẵn một khung hướng dẫn cố định cho AI (vai trò, cách trình bày, quy tắc không bịa thông tin), lưu lại các mẫu prompt hay dùng vào một nơi gọn gàng, và luôn kiểm tra lại kết quả trước khi áp dụng vào bài làm hay dự án thực tế.
